@@ -26,6 +26,11 @@ Clone this project
 ## Deploy to AWS Lambda with Serverless
 `serverless deploy` (or `sls deploy`)
 
+## Monitoring logs with Serverless
+`serverless logs -f connect -t`
+* `-f` specifies the Serverless function name
+* `-t` to display/update logs in [near] real-time
+
 # Create/configure a Zendesk Connect campaign
 Configure a Variant of type 'Webhook':
 * Endpoint: Use the value from the output of `sls deploy` (look for `endpoints:` and `POST - `)
@@ -39,3 +44,7 @@ Configure a Variant of type 'Webhook':
 
 # Trigger event(s)/launch broadcast from Zendesk Connect
 As part of a broadcast campaign/Configure the trigger
+
+# Looping replies back into Zendesk Support
+* Connect the Smooch Marketplace _Zendesk integration_ to your smooch app: https://app.smooch.io/integrations/zendesk
+* When users reply, a new ticket will be created, including the context of the last (up to 10) messages/notifications

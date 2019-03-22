@@ -3,8 +3,6 @@ import json, os, requests, datetime
 print("Launching function...")
 
 #env_vars=[ "SMOOCH_JWT", "SMOOCH_APPID", "SMOOCH_INTEGRATIONID" ]
-notify_endpoint="https://api.smooch.io/v1/apps/%s/notifications" % os.environ['SMOOCH_APPID']
-
 WA_message_template = {
     # update below with your namespace/template/variables/fallback
     "fallbackText": "HSM Sent: Test message from Smooch",
@@ -18,6 +16,7 @@ WA_message_template = {
     ]
 }
 
+notify_endpoint="https://api.smooch.io/v1/apps/%s/notifications" % os.environ['SMOOCH_APPID']
 notify_header = {
         'content-type': 'application/json',
         'authorization': 'Bearer %s' % os.environ['SMOOCH_JWT']
@@ -80,5 +79,6 @@ def connectNotification(event, context):
         "statusCode": notification_resp.status_code,
         'body': notification_resp.text
     }
-
+    if response['statusCode'] != 201:
+        print(locals())
     return response
