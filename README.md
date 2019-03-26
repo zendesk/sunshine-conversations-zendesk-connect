@@ -19,13 +19,15 @@ Use the command `aws ssm put-parameter --name supermanToken --type String --valu
 * integrationId
 * smoochJWT
 
-NOTE: the JWT should be app-scoped
+NOTE: the JWT should be app-scoped: https://docs.smooch.io/guide/authorization/
 ### Optional keys
 Incoming request authentication is not implemented, but an example would be to use 2 additional SSM keys:
 * connectAuthKey
 * connectAuthSecret
+* connectCampaignIds
 
 NOTE: Serverless will raise a warning if keys are specified (serverless.yml) but not found in the AWS SSM/environment
+NOTE: _connectCampaignIds_ can contain a comma-separated list of authorised CampaignIds
 ## Clone smooch-zendesk-connect code
 Clone this project
 ## Deploy to AWS Lambda with Serverless
@@ -48,9 +50,9 @@ Configure a Variant of type 'Webhook':
 NOTE: "cotactName" User name will be included in outgoing messages (for the example in this repo)
 NOTE: for best results, "target" phone number should include '+' and country-code
 
-# Trigger event(s)/launch broadcast from Zendesk Connect
-As part of a broadcast campaign/Configure the trigger
+# Ready for Trigger event(s)/Broadcast send from Zendesk Connect
+For Broadcast campaigns, you can try a _Test Send_ or use _Final Send_.
 
 # Looping replies back into Zendesk Support
-* Connect the Smooch Marketplace _Zendesk integration_ to your smooch app: https://app.smooch.io/integrations/zendesk
+* Visit the Smooch Marketplace and add the _Zendesk integration_ to your smooch app: https://app.smooch.io/integrations/zendesk
 * When users reply, a new ticket will be created, including the context of the last (up to 10) messages/notifications
