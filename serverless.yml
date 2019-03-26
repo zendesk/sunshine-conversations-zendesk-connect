@@ -72,6 +72,7 @@ functions:
       SMOOCH_APPID: ${ssm:appId}
       #CONNECT_AUTHHEADER: ${ssm:connectAuthHeader}
       #CONNECT_AUTHKEY: ${ssm:connectAuthKey}
+      # List of authorized campaignIds, comma-separated
       #CONNECT_CAMPAIGNIDS: ${ssm:connectCampaignIds}
 
 #    The following are a few example events you can configure

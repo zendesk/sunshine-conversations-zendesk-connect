@@ -40,22 +40,32 @@ notify_data = {
     }
 }
 
+def fail_unauthorised():
+    response={
+        "statusCode": 403,
+        'body': "Unauthorised"
+    }
+    return response
+
 def connectNotification(event, context):
     print("\n\nReceived event @ %s:" % datetime.datetime.now())
     print('connectNotification() called:\nHeaders:\n\t"%s"\nBody: "%s"' % (event['headers'], event['body']))
     
-    # TODO: Auth reqests via `User-defined Header`; e.g.:
     '''
+    # TODO: Auth reqests via `User-defined Header`; e.g.:
     if 'CONNECT_AUTHHEADER' in os.environ and 'CONNECT_AUTHKEY' in os.environ:
         if event['headers'][os.environ['CONNECT_AUTHHEADER']] != os.environ['CONNECT_AUTHKEY']:
-            response={
-                "statusCode": 403,
-                'body': "Unauthorised"
-            }
-            return response
+            return fail_unauthorised()
+    '''
+
+    request_body = json.loads(event["body"])
+    '''
+    # TODO: Auth reqests via `CampaignId`; e.g.:
+    if 'CONNECT_CAMPAIGNID' in os.environ:
+        if request_body['campaign_id'] not in [x.strip() for x in CONNECT_CAMPAIGNIDS.split(',')]:
+            return fail_unauthorised()
     '''
     
-    request_body = json.loads(event["body"])
     if 'contactName' in request_body['data'].keys():
         contactName = request_body['data']['contactName']
     else:   # instead of 'hello <name>', use 'hello there'
