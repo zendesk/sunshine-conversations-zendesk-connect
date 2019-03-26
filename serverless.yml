@@ -70,8 +70,9 @@ functions:
       SMOOCH_INTEGRATIONID: ${ssm:integrationId}
       SMOOCH_JWT: ${ssm:smoochJWT}
       SMOOCH_APPID: ${ssm:appId}
-      CONNECT_AUTHHEADER: ${ssm:connectAuthHeader}
-      CONNECT_AUTHKEY: ${ssm:connectAuthKey}
+      #CONNECT_AUTHHEADER: ${ssm:connectAuthHeader}
+      #CONNECT_AUTHKEY: ${ssm:connectAuthKey}
+      #CONNECT_CAMPAIGNIDS: ${ssm:connectCampaignIds}
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
