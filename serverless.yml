@@ -41,10 +41,6 @@ provider:
 #            - "Ref" : "ServerlessDeploymentBucket"
 #            - "/*"
 
-# you can define service wide environment variables here
-#  environment:
-#    variable1: value1
-
 # you can add packaging information here
 #package:
 #  include:
@@ -58,17 +54,16 @@ plugins:
   - serverless-python-requirements
 
 functions:
+  webhookHandler:
+    handler: handler.receiveWebhook
+
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
-  connect:
-    handler: handler.receiveWebhook
-    # The `events` block defines how to trigger the handler.helloWorld code
     events:
       - http:
-          path: sendNotification
+          path: sendNotificaton
           method: post
-          #cors: true
 #      - s3: ${env:BUCKET}
 #      - schedule: rate(10 minutes)
 #      - sns: greeter-topic
@@ -93,9 +88,8 @@ functions:
 
 #    Define function environment variables here
     environment:
-      # List of authorized campaignIds, comma-separated
-      authorized_campaign_list: ${ssm:connectCampaignIdList}
 #      variable2: value2
+      authorized_campaign_list: ${ssm:connectCampaignIdList}
 
 # you can add CloudFormation resource templates here
 #resources:
