@@ -32,16 +32,17 @@ Clone this project
 Configure a Variant of type 'Webhook':
 * Endpoint: Use the value from the output of `sls deploy` (look for `endpoints:` and `POST - `)
 * Authentication:
- * Type: User-defined Header
- * Key: Authorization
- * Value: "Bearer <app-scope Smooch JWT>"
+  * Type: User-defined Header
+  * Key: `Authorization`
+  * Value: `Bearer <app-scope Smooch JWT>`
+  
 NOTE: The function will also validate the campaign_id is whitelisted
-* Body: {
-    app_id: <Smooch appId>
-    integration_id: <Smooch integrationId (for the desired channel)>
-    destination_id: <channel-specific Id for the user>
-    msg_text: <content of the message to be sent>
-}
+* Body:
+  * app_id: `<Smooch appId>`
+  * integration_id: `<Smooch integrationId (for the desired channel)>`
+  * destination_id: `<channel-specific Id for the user>`
+  * msg_text: `<content of the message to be sent>`
+  
 NOTE: for SMS/WhatsApp, destinationId would be the phone number, with '+' and country-code
 NOTE: To send a message based on a WhatsApp Message Template, please use HSM Shorthand: https://docs.smooch.io/guide/whatsapp#shorthand-syntax
 
