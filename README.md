@@ -14,16 +14,6 @@
     * Zendesk Integration on Smooch app
 ## Push environment variables to AWS (SSM)
 Use the command `aws ssm put-parameter --name supermanToken --type String --value mySupermanToken`
-### Required keys
-* appId
-* integrationId
-* smoochJWT
-
-NOTE: the JWT should be app-scoped: https://docs.smooch.io/guide/authorization/
-### Optional keys
-Incoming request authentication is not implemented, but an example would be to use 2 additional SSM keys:
-* connectAuthKey
-* connectAuthSecret
 * connectCampaignIds
 
 NOTE: Serverless will raise a warning if keys are specified (serverless.yml) but not found in the AWS SSM/environment
