@@ -1,81 +1,88 @@
-import json, os, requests, datetime
+import json, os, datetime, requests
 
 print("Launching function...")
 
-#env_vars=[ "SMOOCH_JWT", "SMOOCH_APPID", "SMOOCH_INTEGRATIONID" ]
-WA_message_template = {
-    # update below with your namespace/template/variables/fallback
-    "fallbackText": "HSM Sent: Test message from Smooch",
-    "WABA_namespace": "whatsapp:hsm:communications:smoochio",
-    "template_name": "test_localized",
-    # Template text: "Hi {{1}}, your {{2}} reservation is confirmed!"
-    "variables": [
-        "{appUserName}",
-        # for this sample, appUserName remains as a variable for later substitution, once the userName is known
-        "Casa Geranio"
-    ]
-}
+required_payload_fields = ["campaign_id"]
+# Unused Connect values: ['id', 'user_id']
+required_payload_data_fields = ["app_id", "integration_id", "destination_id", "msg_text"]
 
-notify_endpoint="https://api.smooch.io/v1/apps/%s/notifications" % os.environ['SMOOCH_APPID']
-notify_header = {
-        'content-type': 'application/json',
-        'authorization': 'Bearer %s' % os.environ['SMOOCH_JWT']
-}
-notify_data = {
-    "storage": "full",
-    "destination": {
-        "integrationId": os.environ["SMOOCH_INTEGRATIONID"], #// i.e., WhatsApp Integration
-        "destinationId": "{targetPhone}" #// User- and Channel-specific id (externalId); set later
-    },
-    # Standard Smooch-message structure
-    "message": {
-        "role": "appMaker",
-        "type": "text",
-        "text": "&[{fallback}]({namespace}, {template}{vars})".format(
-            fallback = WA_message_template['fallbackText'],
-            namespace = WA_message_template['WABA_namespace'],
-            template = WA_message_template['template_name'],
-            vars = ", " + ', '.join(map(str, WA_message_template["variables"])) if len(WA_message_template["variables"]) > 0 else ""
-        )
-    }
-}
+def parse_campaigns(envList):
+    li = envList.split(",")
+    for i in range(0, len(li)):
+        li[i] = li[i].strip() 
+    return li
 
 def fail_unauthorised():
     response={
         "statusCode": 403,
         'body': "Unauthorised"
     }
+    print(response)
     return response
 
-def connectNotification(event, context):
+def fail_badRequest():
+    response={
+        "statusCode": 400,
+        'body': "Bad request"
+    }
+    print(response)
+    return response
+
+def receiveWebhook(event, context):
     print("\n\nReceived event @ %s:" % datetime.datetime.now())
-    print('connectNotification() called:\nHeaders:\n\t"%s"\nBody: "%s"' % (event['headers'], event['body']))
-    
-    '''
-    # TODO: Auth reqests via `User-defined Header`; e.g.:
-    if 'CONNECT_AUTHHEADER' in os.environ and 'CONNECT_AUTHKEY' in os.environ:
-        if event['headers'][os.environ['CONNECT_AUTHHEADER']] != os.environ['CONNECT_AUTHKEY']:
-            return fail_unauthorised()
-    '''
+    print('connectNotification() called:\nHeaders:\n\t"%s"\nBody:\n\t"%s"' % (event['headers'], event['body']))
+
+    # Validation
+    if "Authorization" not in event['headers'].keys():
+        fail_badRequest()
 
     request_body = json.loads(event["body"])
-    '''
-    # TODO: Auth reqests via `CampaignId`; e.g.:
-    if 'CONNECT_CAMPAIGNID' in os.environ:
-        if request_body['campaign_id'] not in [x.strip() for x in CONNECT_CAMPAIGNIDS.split(',')]:
-            return fail_unauthorised()
-    '''
-    
-    if 'contactName' in request_body['data'].keys():
-        contactName = request_body['data']['contactName']
-    else:   # instead of 'hello <name>', use 'hello there'
-        contactName = 'there'
-    
-    # set destinationId = userPhone
-    notify_data["destination"]["destinationId"] = request_body['data']['target']
-    # update userName as variable in HSM shorthand
-    notify_data["message"]['text'] = notify_data["message"]['text'].format(appUserName=contactName) 
-    
+
+    for key in required_payload_fields:
+        if key not in request_body.keys():
+            print("ERROR: Missing required field '%s'" % key)
+            fail_badRequest()
+    for key in required_payload_data_fields:
+        if key not in request_body['data'].keys():
+            print("ERROR: Missing required field 'data > %s'" % key)
+            fail_badRequest()
+    # TODO: Check for shorthand syntax in 'msg_text' (?)
+
+    ##Auth
+    if request_body['campaign_id'] not in parse_campaigns(os.environ['authorized_campaign_list']):
+        fail_unauthorised()
+
+    ## Hard-coded NotifyAPI values:
+    storage = "full"
+    msg_role = "appMaker"
+    msg_type = "text"
+
+    ## Required values event.data.{}
+    appId = request_body['data']['app_id']
+    integrationId = request_body['data']['integration_id'] #// i.e., WhatsApp Integration
+    destinationId = request_body['data']['destination_id'] #// User- and Channel-specific id (externalId); set later
+    msg_text = request_body['data']['msg_text']
+
+    notify_endpoint = "https://api.smooch.io/v1/apps/%s/notifications" % appId
+    notify_header = {
+            'content-type': 'application/json',
+            #'authorization': 'Bearer %s' % JWT
+            'Authorization': event['headers']['Authorization']
+    }
+    notify_data = {
+        "storage": storage,
+        "destination": {
+            "integrationId": integrationId,
+            "destinationId": destinationId
+        },
+        # Standard Smooch-message structure
+        "message": {
+            "role": msg_role,
+            "type": msg_type,
+            "text": msg_text
+        }
+    }
+
     print("\nRequest url: %s" % notify_endpoint)
     print("Request header:\n\t%s" % notify_header)
     print("Request data:\n\t%s" % notify_data)
@@ -84,11 +91,12 @@ def connectNotification(event, context):
 
     print("\nResult:", notification_resp.status_code)
     print("Response body:", notification_resp.text)
-
-    response={
+    
+    response = {
         "statusCode": notification_resp.status_code,
         'body': notification_resp.text
     }
     if response['statusCode'] != 201:
         print(locals())
+
     return response

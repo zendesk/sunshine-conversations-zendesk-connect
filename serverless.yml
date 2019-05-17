@@ -58,30 +58,17 @@ plugins:
   - serverless-python-requirements
 
 functions:
-  connect:
-    handler: handler.connectNotification
-    # The `events` block defines how to trigger the handler.helloWorld code
-    events:
-      - http:
-          path: connectNotification
-          method: post
-          cors: true
-    environment:
-      SMOOCH_INTEGRATIONID: ${ssm:integrationId}
-      SMOOCH_JWT: ${ssm:smoochJWT}
-      SMOOCH_APPID: ${ssm:appId}
-      #CONNECT_AUTHHEADER: ${ssm:connectAuthHeader}
-      #CONNECT_AUTHKEY: ${ssm:connectAuthKey}
-      # List of authorized campaignIds, comma-separated
-      #CONNECT_CAMPAIGNIDS: ${ssm:connectCampaignIds}
-
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
-#    events:
-#      - http:
-#          path: users/create
-#          method: get
+  connect:
+    handler: handler.receiveWebhook
+    # The `events` block defines how to trigger the handler.helloWorld code
+    events:
+      - http:
+          path: sendNotification
+          method: post
+          #cors: true
 #      - s3: ${env:BUCKET}
 #      - schedule: rate(10 minutes)
 #      - sns: greeter-topic
@@ -105,7 +92,9 @@ functions:
 #          trigger: PreSignUp
 
 #    Define function environment variables here
-#    environment:
+    environment:
+      # List of authorized campaignIds, comma-separated
+      authorized_campaign_list: ${ssm:connectCampaignIdList}
 #      variable2: value2
 
 # you can add CloudFormation resource templates here
