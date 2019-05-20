@@ -52,7 +52,7 @@ Use the command `aws ssm put-parameter --name connectCampaignIdList --type Strin
 <List> should be a comma-separated list of allowed Connect campaignIds
 NOTE: Writing a single campaignId will overwrite any previous values.
 ## Read the campaignId whitelist
-To get the current whitelist in order to append a new Campaign to the whitelist without squashing previously allowed campaignsUse the command `aws ssm put-parameter --name connectCampaignIdList`.
+To get the current whitelist in order to append a new Campaign to the whitelist without squashing previously allowed campaignsUse the command `aws ssm get-parameter --name connectCampaignIdList`.
 The current whitelist is shown as Parameter > Value > ""
 ## Update the campaignId whitelist
 include the `--overwrite` argument in the command to replace the current value
